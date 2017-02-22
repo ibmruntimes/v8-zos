@@ -1031,8 +1031,11 @@ void CEntryStub::Generate(MacroAssembler* masm) {
   // Pass buffer for return value on stack if necessary
   bool needs_return_buffer =
       result_size() > 2 ||
-      //(result_size() == 2 && !ABI_RETURNS_OBJECTPAIR_IN_REGS);
-	  (result_size() == 2);
+#ifdef V8_OS_ZOS
+      (result_size() == 2);
+#else
+      (result_size() == 2 && !ABI_RETURNS_OBJECT_PAIRS_IN_REGS);
+#endif
   if (needs_return_buffer) {
     arg_stack_space += result_size();
   }
@@ -1094,7 +1097,7 @@ void CEntryStub::Generate(MacroAssembler* masm) {
 #endif  // USE_SIMULATOR
   Register target = r8;
 #else
-   Register target = r7;
+  Register target = r7;
 #endif   // V8_OS_ZOS
 
   // To let the GC traverse the return address of the exit frames, we need to
@@ -1113,10 +1116,8 @@ void CEntryStub::Generate(MacroAssembler* masm) {
 #if V8_OS_ZOS
     // TODO(mcornac): why do I have to -2?
     __ lay(ra, MemOperand(ra, -2));
-    __ StoreP(ra, MemOperand(sp, kStackFrameRASlot * kPointerSize));
-#else
-    __ StoreP(ra, MemOperand(sp, kStackFrameRASlot * kPointerSize));
 #endif
+    __ StoreP(ra, MemOperand(sp, kStackFrameRASlot * kPointerSize));
 
     // zLinux ABI requires caller's frame to have sufficient space for callee
     // preserved regsiter save area.
@@ -1261,7 +1262,9 @@ void JSEntryStub::Generate(MacroAssembler* masm) {
 
   Label invoke, handler_entry, exit;
 
+#ifdef V8_OS_ZOS
   __ function_descriptor();
+#endif
 
   ProfileEntryHookStub::MaybeCallEntryHook(masm);
 
@@ -3406,10 +3409,10 @@ void CompareICStub::GenerateMiss(MacroAssembler* masm) {
 // This stub is paired with DirectCEntryStub::GenerateCall
 void DirectCEntryStub::Generate(MacroAssembler* masm) {
 #ifndef V8_OS_ZOS
-   __ CleanseP(r14);
+  __ CleanseP(r14);
 #else
-   __ CleanseP(r7);
-   __ StoreP(r7, MemOperand(sp, kStackFrameRASlot * kPointerSize));
+  __ CleanseP(r7);
+  __ StoreP(r7, MemOperand(sp, kStackFrameRASlot * kPointerSize));
 #endif
   // Statement positions are expected to be recorded when the target
   // address is loaded.
@@ -3421,12 +3424,16 @@ void DirectCEntryStub::Generate(MacroAssembler* masm) {
 void DirectCEntryStub::GenerateCall(MacroAssembler* masm, Register target) {
 #if ABI_USES_FUNCTION_DESCRIPTORS && !defined(USE_SIMULATOR)
   // Native AIX/S390X Linux use a function descriptor.
-  // __ LoadP(ToRegister(ABI_TOC_REGISTER), MemOperand(target, kPointerSize));
+#ifndef V8_OS_ZOS
+  __ LoadP(ToRegister(ABI_TOC_REGISTER), MemOperand(target, kPointerSize));
+  __ LoadP(target, MemOperand(target, 0));  // Instruction address
+#else
+  __ LoadP(ip, MemOperand(target, kPointerSize));
+  __ LoadP(r5, MemOperand(target, 0));
+#endif
+#else
   // ip needs to be set for DirectCEentryStub::Generate, and also
   // for ABI_CALL_VIA_IP.
-  __  LoadP(ip, MemOperand(target, kPointerSize));
-  __ LoadP(r5, MemOperand(target, 0));
-#else
   __ Move(ip, target);
 #endif
 
@@ -3435,7 +3442,7 @@ void DirectCEntryStub::GenerateCall(MacroAssembler* masm, Register target) {
   __ mov (r7, Operand(code, RelocInfo::CODE_TARGET));
   __ CallC(r7);
 #else
-  __ call(GetCode(), RelocInfo::CODE_TARGET);
+  __ call(GetCode(), RelocInfo::CODE_TARGET);  // Call the stub.
 #endif
 }
 
@@ -4370,7 +4377,6 @@ void ProfileEntryHookStub::Generate(MacroAssembler* masm) {
 
 #if ABI_USES_FUNCTION_DESCRIPTORS
   // Function descriptor
-  // __ LoadP(ToRegister(ABI_TOC_REGISTER), MemOperand(ip, kPointerSize));
   __ LoadP(ip, MemOperand(ip, kPointerSize));
 // ip already set.
 #endif
