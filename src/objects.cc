@@ -1883,7 +1883,7 @@ void JSObject::JSObjectShortPrint(StringStream* accumulator) {
         }
       }
       accumulator->Add(
-          u8" (BoundTargetFunction %p)>",
+          " (BoundTargetFunction %p)>",
           reinterpret_cast<void*>(bound_function->bound_target_function()));
       break;
     }
@@ -2151,7 +2151,7 @@ void HeapObject::HeapObjectShortPrint(std::ostream& os) {  // NOLINT
       break;
 #define TYPED_ARRAY_SHORT_PRINT(Type, type, TYPE, ctype, size)                \
   case FIXED_##TYPE##_ARRAY_TYPE:                                             \
-    os << "<Fixed" USTR(#Type) "Array[" << Fixed##Type##Array::cast(this)->length() \
+    os << "<Fixed" #Type "Array[" << Fixed##Type##Array::cast(this)->length() \
        << "]>";                                                               \
     break;
 
@@ -2174,7 +2174,7 @@ void HeapObject::HeapObjectShortPrint(std::ostream& os) {  // NOLINT
       break;
 #define MAKE_STRUCT_CASE(NAME, Name, name) \
   case NAME##_TYPE:                        \
-    os << "<" USTR(#Name) ">";                   \
+    os << "<" #Name ">";                   \
     break;
   STRUCT_LIST(MAKE_STRUCT_CASE)
 #undef MAKE_STRUCT_CASE
@@ -2219,7 +2219,7 @@ void HeapObject::HeapObjectShortPrint(std::ostream& os) {  // NOLINT
     case SIMD128_VALUE_TYPE: {
 #define SIMD128_TYPE(TYPE, Type, type, lane_count, lane_type) \
   if (Is##Type()) {                                           \
-    os << "<" USTR(#Type) ">";                                      \
+    os << "<" #Type ">";                                      \
     break;                                                    \
   }
       SIMD128_TYPES(SIMD128_TYPE)
@@ -3483,7 +3483,7 @@ Handle<Map> Map::ReconfigureProperty(Handle<Map> old_map, int modify_index,
   if (!old_map->EquivalentToForTransition(*root_map)) {
     return CopyGeneralizeAllRepresentations(old_map, modify_index, store_mode,
                                             new_kind, new_attributes,
-                                            "GenAll_NotEquivalent");
+                                            u8"GenAll_NotEquivalent");
   }
 
   ElementsKind from_kind = root_map->elements_kind();
@@ -3495,7 +3495,7 @@ Handle<Map> Map::ReconfigureProperty(Handle<Map> old_map, int modify_index,
         IsMoreGeneralElementsKindTransition(from_kind, to_kind))) {
     return CopyGeneralizeAllRepresentations(old_map, modify_index, store_mode,
                                             new_kind, new_attributes,
-                                            "GenAll_InvalidElementsTransition");
+                                            u8"GenAll_InvalidElementsTransition");
   }
   int root_nof = root_map->NumberOfOwnDescriptors();
   if (modify_index >= 0 && modify_index < root_nof) {
@@ -3504,7 +3504,7 @@ Handle<Map> Map::ReconfigureProperty(Handle<Map> old_map, int modify_index,
         old_details.attributes() != new_attributes) {
       return CopyGeneralizeAllRepresentations(old_map, modify_index, store_mode,
                                               new_kind, new_attributes,
-                                              "GenAll_RootModification1");
+                                              u8"GenAll_RootModification1");
     }
     if ((old_details.type() != DATA && store_mode == FORCE_FIELD) ||
         (old_details.type() == DATA &&
@@ -3512,7 +3512,7 @@ Handle<Map> Map::ReconfigureProperty(Handle<Map> old_map, int modify_index,
           !new_representation.fits_into(old_details.representation())))) {
       return CopyGeneralizeAllRepresentations(old_map, modify_index, store_mode,
                                               new_kind, new_attributes,
-                                              "GenAll_RootModification2");
+                                              u8"GenAll_RootModification2");
     }
   }
 
@@ -3568,7 +3568,7 @@ Handle<Map> Map::ReconfigureProperty(Handle<Map> old_map, int modify_index,
                               tmp_descriptors->GetValue(i))) {
       return CopyGeneralizeAllRepresentations(old_map, modify_index, store_mode,
                                               new_kind, new_attributes,
-                                              "GenAll_Incompatible");
+                                              u8"GenAll_Incompatible");
     }
     if (next_location == kField && tmp_details.location() == kDescriptor) break;
 
@@ -3663,7 +3663,7 @@ Handle<Map> Map::ReconfigureProperty(Handle<Map> old_map, int modify_index,
                               tmp_descriptors->GetValue(i))) {
       return CopyGeneralizeAllRepresentations(old_map, modify_index, store_mode,
                                               new_kind, new_attributes,
-                                              "GenAll_Incompatible");
+                                              u8"GenAll_Incompatible");
     }
     DCHECK(!tmp_map->is_deprecated());
     target_map = tmp_map;
@@ -3896,7 +3896,7 @@ Handle<Map> Map::ReconfigureProperty(Handle<Map> old_map, int modify_index,
       !TransitionArray::CanHaveMoreTransitions(split_map)) {
     return CopyGeneralizeAllRepresentations(old_map, modify_index, store_mode,
                                             new_kind, new_attributes,
-                                            "GenAll_CantHaveMoreTransitions");
+                                            u8"GenAll_CantHaveMoreTransitions");
   }
 
   old_map->NotifyLeafMapLayoutChange();
@@ -6204,7 +6204,7 @@ Object* JSReceiver::DefineProperty(Isolate* isolate, Handle<Object> object,
   // 1. If Type(O) is not Object, throw a TypeError exception.
   if (!object->IsJSReceiver()) {
     Handle<String> fun_name =
-        isolate->factory()->InternalizeUtf8String("Object.defineProperty");
+        isolate->factory()->InternalizeUtf8String(u8"Object.defineProperty");
     THROW_NEW_ERROR_RETURN_FAILURE(
         isolate, NewTypeError(MessageTemplate::kCalledOnNonObject, fun_name));
   }
@@ -6236,7 +6236,7 @@ MaybeHandle<Object> JSReceiver::DefineProperties(Isolate* isolate,
   // 1. If Type(O) is not Object, throw a TypeError exception.
   if (!object->IsJSReceiver()) {
     Handle<String> fun_name =
-        isolate->factory()->InternalizeUtf8String("Object.defineProperties");
+        isolate->factory()->InternalizeUtf8String(u8"Object.defineProperties");
     THROW_NEW_ERROR(isolate,
                     NewTypeError(MessageTemplate::kCalledOnNonObject, fun_name),
                     Object);
@@ -9317,10 +9317,10 @@ Handle<Map> Map::ShareDescriptor(Handle<Map> map,
 // static
 void Map::TraceTransition(const char* what, Map* from, Map* to, Name* name) {
   if (FLAG_trace_maps) {
-    PrintF(u8"[TraceMaps: %s from= %p to= %p name= ", what,
+    PrintF("[TraceMaps: %s from= %p to= %p name= ", what,
            reinterpret_cast<void*>(from), reinterpret_cast<void*>(to));
     name->NameShortPrint();
-    PrintF(u8" ]\n");
+    PrintF(" ]\n");
   }
 }
 
@@ -9332,7 +9332,7 @@ void Map::TraceAllTransitions(Map* map) {
   for (int i = -0; i < num_transitions; ++i) {
     Map* target = TransitionArray::GetTarget(transitions, i);
     Name* key = TransitionArray::GetKey(transitions, i);
-    Map::TraceTransition(u8"Transition", map, target, key);
+    Map::TraceTransition("Transition", map, target, key);
     Map::TraceAllTransitions(target);
   }
 }
@@ -9650,7 +9650,7 @@ Handle<Map> Map::Copy(Handle<Map> map, const char* reason) {
 
 Handle<Map> Map::Create(Isolate* isolate, int inobject_properties) {
   Handle<Map> copy =
-      Copy(handle(isolate->object_function()->initial_map()), "MapCreate");
+      Copy(handle(isolate->object_function()->initial_map()), u8"MapCreate");
 
   // Check that we do not overflow the instance size when adding the extra
   // inobject properties. If the instance size overflows, we allocate as many
@@ -9804,7 +9804,7 @@ Handle<Map> Map::TransitionToDataProperty(Handle<Map> map, Handle<Name> name,
     }
 #endif
     return Map::Normalize(map, CLEAR_INOBJECT_PROPERTIES,
-                          "TooManyFastProperties");
+                          u8"TooManyFastProperties");
   }
 
   return result;
@@ -9822,7 +9822,7 @@ Handle<Map> Map::ReconfigureExistingProperty(Handle<Map> map, int descriptor,
     // back pointers.
     return CopyGeneralizeAllRepresentations(
         map, descriptor, FORCE_FIELD, kind, attributes,
-        "GenAll_AttributesMismatchProtoMap");
+        u8"GenAll_AttributesMismatchProtoMap");
   }
 
   if (FLAG_trace_generalization) {
@@ -9867,12 +9867,12 @@ Handle<Map> Map::TransitionToAccessorProperty(Handle<Map> map,
 
     Handle<Object> maybe_pair(descriptors->GetValue(descriptor), isolate);
     if (!maybe_pair->IsAccessorPair()) {
-      return Map::Normalize(map, mode, "TransitionToAccessorFromNonPair");
+      return Map::Normalize(map, mode, u8"TransitionToAccessorFromNonPair");
     }
 
     Handle<AccessorPair> pair = Handle<AccessorPair>::cast(maybe_pair);
     if (pair->get(component) != *accessor) {
-      return Map::Normalize(map, mode, "TransitionToDifferentAccessor");
+      return Map::Normalize(map, mode, u8"TransitionToDifferentAccessor");
     }
 
     return transition;
@@ -9882,33 +9882,33 @@ Handle<Map> Map::TransitionToAccessorProperty(Handle<Map> map,
   DescriptorArray* old_descriptors = map->instance_descriptors();
   if (descriptor != DescriptorArray::kNotFound) {
     if (descriptor != map->LastAdded()) {
-      return Map::Normalize(map, mode, "AccessorsOverwritingNonLast");
+      return Map::Normalize(map, mode, u8"AccessorsOverwritingNonLast");
     }
     PropertyDetails old_details = old_descriptors->GetDetails(descriptor);
     if (old_details.type() != ACCESSOR_CONSTANT) {
-      return Map::Normalize(map, mode, "AccessorsOverwritingNonAccessors");
+      return Map::Normalize(map, mode, u8"AccessorsOverwritingNonAccessors");
     }
 
     if (old_details.attributes() != attributes) {
-      return Map::Normalize(map, mode, "AccessorsWithAttributes");
+      return Map::Normalize(map, mode, u8"AccessorsWithAttributes");
     }
 
     Handle<Object> maybe_pair(old_descriptors->GetValue(descriptor), isolate);
     if (!maybe_pair->IsAccessorPair()) {
-      return Map::Normalize(map, mode, "AccessorsOverwritingNonPair");
+      return Map::Normalize(map, mode, u8"AccessorsOverwritingNonPair");
     }
 
     Object* current = Handle<AccessorPair>::cast(maybe_pair)->get(component);
     if (current == *accessor) return map;
 
     if (!current->IsTheHole()) {
-      return Map::Normalize(map, mode, "AccessorsOverwritingAccessors");
+      return Map::Normalize(map, mode, u8"AccessorsOverwritingAccessors");
     }
 
     pair = AccessorPair::Copy(Handle<AccessorPair>::cast(maybe_pair));
   } else if (map->NumberOfOwnDescriptors() >= kMaxNumberOfDescriptors ||
              map->TooManyFastProperties(CERTAINLY_NOT_STORE_FROM_KEYED)) {
-    return Map::Normalize(map, CLEAR_INOBJECT_PROPERTIES, "TooManyAccessors");
+    return Map::Normalize(map, CLEAR_INOBJECT_PROPERTIES, u8"TooManyAccessors");
   } else {
     pair = isolate->factory()->NewAccessorPair();
   }
@@ -10558,7 +10558,7 @@ void WeakFixedArray::Set(Handle<WeakFixedArray> array, int index,
                      : array->GetIsolate()->factory()->NewWeakCell(value);
   Handle<FixedArray>::cast(array)->set(index + kFirstIndex, *cell);
   if (FLAG_trace_weak_arrays) {
-    PrintF(u8"[WeakFixedArray: storing at index %d ]\n", index);
+    PrintF("[WeakFixedArray: storing at index %d ]\n", index);
   }
   array->set_last_used_index(index);
 }
@@ -10584,7 +10584,7 @@ Handle<WeakFixedArray> WeakFixedArray::Add(Handle<Object> maybe_array,
         return array;
       }
       if (FLAG_trace_weak_arrays) {
-        PrintF(u8"[WeakFixedArray: searching for free slot]\n");
+        PrintF("[WeakFixedArray: searching for free slot]\n");
       }
       i = (i + 1) % length;
       if (i == first_index) break;
@@ -10596,7 +10596,7 @@ Handle<WeakFixedArray> WeakFixedArray::Add(Handle<Object> maybe_array,
   Handle<WeakFixedArray> new_array =
       Allocate(array->GetIsolate(), new_length, array);
   if (FLAG_trace_weak_arrays) {
-    PrintF(u8"[WeakFixedArray: growing to size %d ]\n", new_length);
+    PrintF("[WeakFixedArray: growing to size %d ]\n", new_length);
   }
   WeakFixedArray::Set(new_array, length, value);
   if (assigned_index != NULL) *assigned_index = length;
@@ -12191,7 +12191,7 @@ void IteratingStringHasher::VisitConsString(ConsString* cons_string) {
 void String::PrintOn(FILE* file) {
   int length = this->length();
   for (int i = 0; i < length; i++) {
-    PrintF(file, u8"%c", Get(i));
+    PrintF(file, "%c", Get(i));
   }
 }
 
@@ -12296,9 +12296,9 @@ void JSFunction::AttemptConcurrentOptimization() {
          !shared()->optimization_disabled());
   DCHECK(isolate->concurrent_recompilation_enabled());
   if (FLAG_trace_concurrent_recompilation) {
-    PrintF(u8"  ** Marking ");
+    PrintF("  ** Marking ");
     ShortPrint();
-    PrintF(u8" for concurrent recompilation.\n");
+    PrintF(" for concurrent recompilation.\n");
   }
   set_code_no_write_barrier(
       isolate->builtins()->builtin(Builtins::kCompileOptimizedConcurrent));
@@ -12435,12 +12435,12 @@ void SharedFunctionInfo::EvictFromOptimizedCodeMap(Code* optimized_code,
         optimized_code) {
       BailoutId osr(Smi::cast(code_map->get(src + kOsrAstIdOffset))->value());
       if (FLAG_trace_opt) {
-        PrintF(u8"[evicting entry from optimizing code map (%s) for ", reason);
+        PrintF("[evicting entry from optimizing code map (%s) for ", reason);
         ShortPrint();
         if (osr.IsNone()) {
-          PrintF(u8"]\n");
+          PrintF("]\n");
         } else {
-          PrintF(u8" (osr ast id %d)]\n", osr.ToInt());
+          PrintF(" (osr ast id %d)]\n", osr.ToInt());
         }
       }
       if (!osr.IsNone()) {
@@ -12471,9 +12471,9 @@ void SharedFunctionInfo::EvictFromOptimizedCodeMap(Code* optimized_code,
     code_map->set(kSharedCodeIndex, heap->empty_weak_cell(),
                   SKIP_WRITE_BARRIER);
     if (FLAG_trace_opt) {
-      PrintF(u8"[evicting entry from optimizing code map (%s) for ", reason);
+      PrintF("[evicting entry from optimizing code map (%s) for ", reason);
       ShortPrint();
-      PrintF(u8" (context-independent code)]\n");
+      PrintF(" (context-independent code)]\n");
     }
   }
   if (dst != length) {
@@ -12687,7 +12687,7 @@ bool JSObject::UnregisterPrototypeUser(Handle<Map> user, Isolate* isolate) {
 static void InvalidatePrototypeChainsInternal(Map* map) {
   if (!map->is_prototype_map()) return;
   if (FLAG_trace_prototype_users) {
-    PrintF(u8"Invalidating prototype map %p 's cell\n",
+    PrintF("Invalidating prototype map %p 's cell\n",
            reinterpret_cast<void*>(map));
   }
   Object* maybe_proto_info = map->prototype_info();
@@ -13390,7 +13390,7 @@ Handle<Object> Script::GetNameOrSourceURL(Handle<Script> script) {
   Isolate* isolate = script->GetIsolate();
   Handle<String> name_or_source_url_key =
       isolate->factory()->InternalizeOneByteString(
-          STATIC_CHAR_VECTOR("nameOrSourceURL"));
+          STATIC_CHAR_VECTOR(u8"nameOrSourceURL"));
   Handle<JSObject> script_wrapper = Script::GetWrapper(script);
   Handle<Object> property =
       JSReceiver::GetProperty(script_wrapper, name_or_source_url_key)
@@ -13729,9 +13729,9 @@ void SharedFunctionInfo::DisableOptimization(BailoutReason reason) {
          abstract_code()->kind() == AbstractCode::BUILTIN);
   PROFILE(GetIsolate(), CodeDisableOptEvent(abstract_code(), this));
   if (FLAG_trace_opt) {
-    PrintF(u8"[disabled optimization for ");
+    PrintF("[disabled optimization for ");
     ShortPrint();
-    PrintF(u8", reason: %s]\n", GetBailoutReason(reason));
+    PrintF(", reason: %s]\n", GetBailoutReason(reason));
   }
 }
 
@@ -13865,9 +13865,9 @@ CodeAndLiterals SharedFunctionInfo::SearchOptimizedCodeMap(
   }
   if (FLAG_trace_opt && !OptimizedCodeMapIsCleared() &&
       result.code == nullptr) {
-    PrintF(u8"[didn't find optimized code in optimized code map for ");
+    PrintF("[didn't find optimized code in optimized code map for ");
     ShortPrint();
-    PrintF(u8"]\n");
+    PrintF("]\n");
   }
   return result;
 }
@@ -14593,7 +14593,7 @@ void DeoptimizationInputData::DeoptimizationInputDataPrint(
     int jsframe_count = iterator.Next();
     os << "  " << Translation::StringFor(opcode)
        << " {frame count=" << frame_count
-       << u8", js frame count=" << jsframe_count << "}\n";
+       << ", js frame count=" << jsframe_count << "}\n";
 
     while (iterator.HasNext() &&
            Translation::BEGIN !=
@@ -14623,7 +14623,7 @@ void DeoptimizationInputData::DeoptimizationInputDataPrint(
           Object* shared_info = LiteralArray()->get(shared_info_id);
           os << "{bytecode_offset=" << bytecode_offset << ", function="
              << Brief(SharedFunctionInfo::cast(shared_info)->DebugName())
-             << u8", height=" << height << "}";
+             << ", height=" << height << "}";
           break;
         }
 
@@ -14640,7 +14640,7 @@ void DeoptimizationInputData::DeoptimizationInputDataPrint(
           unsigned height = iterator.Next();
           os << "{function="
              << Brief(SharedFunctionInfo::cast(shared_info)->DebugName())
-             << u8", height=" << height << "}";
+             << ", height=" << height << "}";
           break;
         }
 
