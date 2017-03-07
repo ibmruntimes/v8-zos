@@ -151,7 +151,7 @@ MUST_USE_RESULT static MaybeHandle<Object> ReplaceAccessorWithDataProperty(
   it.ReconfigureDataProperty(value, it.property_attributes());
 
   if (is_observed && !old_value->SameValue(*value)) {
-    return JSObject::EnqueueChangeRecord(receiver, "update", name, old_value);
+    return JSObject::EnqueueChangeRecord(receiver, u8"update", name, old_value);
   }
 
   return value;
@@ -314,7 +314,7 @@ void Accessors::ScriptColumnOffsetGetter(
 Handle<AccessorInfo> Accessors::ScriptColumnOffsetInfo(
       Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(isolate->factory()->InternalizeOneByteString(
-      STATIC_CHAR_VECTOR("column_offset")));
+      STATIC_CHAR_VECTOR(u8"column_offset")));
   return MakeAccessor(isolate, name, &ScriptColumnOffsetGetter, nullptr,
                       attributes);
 }
@@ -340,7 +340,7 @@ void Accessors::ScriptIdGetter(
 Handle<AccessorInfo> Accessors::ScriptIdInfo(
       Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(
-      isolate->factory()->InternalizeOneByteString(STATIC_CHAR_VECTOR("id")));
+      isolate->factory()->InternalizeOneByteString(STATIC_CHAR_VECTOR(u8"id")));
   return MakeAccessor(isolate, name, &ScriptIdGetter, nullptr, attributes);
 }
 
@@ -414,7 +414,7 @@ void Accessors::ScriptLineOffsetGetter(
 Handle<AccessorInfo> Accessors::ScriptLineOffsetInfo(
       Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(isolate->factory()->InternalizeOneByteString(
-      STATIC_CHAR_VECTOR("line_offset")));
+      STATIC_CHAR_VECTOR(u8"line_offset")));
   return MakeAccessor(isolate, name, &ScriptLineOffsetGetter, nullptr,
                       attributes);
 }
@@ -441,7 +441,7 @@ void Accessors::ScriptTypeGetter(
 Handle<AccessorInfo> Accessors::ScriptTypeInfo(
       Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(
-      isolate->factory()->InternalizeOneByteString(STATIC_CHAR_VECTOR("type")));
+      isolate->factory()->InternalizeOneByteString(STATIC_CHAR_VECTOR(u8"type")));
   return MakeAccessor(isolate, name, &ScriptTypeGetter, nullptr, attributes);
 }
 
@@ -467,7 +467,7 @@ void Accessors::ScriptCompilationTypeGetter(
 Handle<AccessorInfo> Accessors::ScriptCompilationTypeInfo(
       Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(isolate->factory()->InternalizeOneByteString(
-      STATIC_CHAR_VECTOR("compilation_type")));
+      STATIC_CHAR_VECTOR(u8"compilation_type")));
   return MakeAccessor(isolate, name, &ScriptCompilationTypeGetter, nullptr,
                       attributes);
 }
@@ -501,7 +501,7 @@ void Accessors::ScriptLineEndsGetter(
 Handle<AccessorInfo> Accessors::ScriptLineEndsInfo(
       Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(isolate->factory()->InternalizeOneByteString(
-      STATIC_CHAR_VECTOR("line_ends")));
+      STATIC_CHAR_VECTOR(u8"line_ends")));
   return MakeAccessor(isolate, name, &ScriptLineEndsGetter, nullptr,
                       attributes);
 }
@@ -578,7 +578,7 @@ void Accessors::ScriptIsEmbedderDebugScriptGetter(
 Handle<AccessorInfo> Accessors::ScriptIsEmbedderDebugScriptInfo(
     Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(isolate->factory()->InternalizeOneByteString(
-      STATIC_CHAR_VECTOR("is_debugger_script")));
+      STATIC_CHAR_VECTOR(u8"is_debugger_script")));
   return MakeAccessor(isolate, name, &ScriptIsEmbedderDebugScriptGetter,
                       nullptr, attributes);
 }
@@ -604,7 +604,7 @@ void Accessors::ScriptContextDataGetter(
 Handle<AccessorInfo> Accessors::ScriptContextDataInfo(
       Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(isolate->factory()->InternalizeOneByteString(
-      STATIC_CHAR_VECTOR("context_data")));
+      STATIC_CHAR_VECTOR(u8"context_data")));
   return MakeAccessor(isolate, name, &ScriptContextDataGetter, nullptr,
                       attributes);
 }
@@ -640,7 +640,7 @@ void Accessors::ScriptEvalFromScriptGetter(
 Handle<AccessorInfo> Accessors::ScriptEvalFromScriptInfo(
       Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(isolate->factory()->InternalizeOneByteString(
-      STATIC_CHAR_VECTOR("eval_from_script")));
+      STATIC_CHAR_VECTOR(u8"eval_from_script")));
   return MakeAccessor(isolate, name, &ScriptEvalFromScriptGetter, nullptr,
                       attributes);
 }
@@ -674,7 +674,7 @@ void Accessors::ScriptEvalFromScriptPositionGetter(
 Handle<AccessorInfo> Accessors::ScriptEvalFromScriptPositionInfo(
       Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(isolate->factory()->InternalizeOneByteString(
-      STATIC_CHAR_VECTOR("eval_from_script_position")));
+      STATIC_CHAR_VECTOR(u8"eval_from_script_position")));
   return MakeAccessor(isolate, name, &ScriptEvalFromScriptPositionGetter,
                       nullptr, attributes);
 }
@@ -709,7 +709,7 @@ void Accessors::ScriptEvalFromFunctionNameGetter(
 Handle<AccessorInfo> Accessors::ScriptEvalFromFunctionNameInfo(
       Isolate* isolate, PropertyAttributes attributes) {
   Handle<String> name(isolate->factory()->InternalizeOneByteString(
-      STATIC_CHAR_VECTOR("eval_from_function_name")));
+      STATIC_CHAR_VECTOR(u8"eval_from_function_name")));
   return MakeAccessor(isolate, name, &ScriptEvalFromFunctionNameGetter, nullptr,
                       attributes);
 }
@@ -745,7 +745,7 @@ MUST_USE_RESULT static MaybeHandle<Object> SetFunctionPrototype(
 
   if (is_observed && !old_value->SameValue(*value)) {
     MaybeHandle<Object> result = JSObject::EnqueueChangeRecord(
-        function, "update", isolate->factory()->prototype_string(), old_value);
+        function, u8"update", isolate->factory()->prototype_string(), old_value);
     if (result.is_null()) return MaybeHandle<Object>();
   }
 
